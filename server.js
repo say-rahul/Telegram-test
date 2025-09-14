@@ -1,5 +1,6 @@
 import express from "express";
 import fetch from "node-fetch";
+import moment from "moment-timezone"; // ✅ Import moment-timezone
 
 const app = express();
 app.use(express.json());
@@ -8,6 +9,12 @@ app.use(express.urlencoded({ extended: true }));
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
+// ✅ Ping route for testing connectivity
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
+
+// ✅ Send message to Telegram
 app.post("/send", async (req, res) => {
   try {
     const message = req.body.message;
@@ -33,9 +40,15 @@ app.post("/send", async (req, res) => {
   }
 });
 
+// ✅ Time endpoint
 app.get("/time", (req, res) => {
-  const chennaiTime = moment().tz("Asia/Kolkata").format(); // ISO string
-  res.json({ timezone: "Asia/Kolkata", datetime: chennaiTime });
+  try {
+    const chennaiTime = moment().tz("Asia/Kolkata").format(); // ISO string
+    res.json({ timezone: "Asia/Kolkata", datetime: chennaiTime });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
