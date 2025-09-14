@@ -1,35 +1,34 @@
 import express from "express";
 import fetch from "node-fetch";
-import moment from "moment-timezone"; // ✅ Import moment-timezone
+import moment from "moment-timezone";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // ✅ JSON body parser
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-// ✅ Ping route for testing connectivity
+// ✅ Ping route
 app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-// ✅ Send message to Telegram (now URL-encoded)
+// ✅ Send message to Telegram (JSON input)
 app.post("/send", async (req, res) => {
   try {
     const message = req.body.message;
     if (!message) return res.status(400).json({ error: "No message provided" });
 
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const payload = new URLSearchParams({
+    const payload = {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
-    });
+    };
 
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: payload.toString(),
+      headers: { "Content-Type": "application/json" }, // ✅ JSON mode
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
@@ -43,7 +42,7 @@ app.post("/send", async (req, res) => {
 // ✅ Time endpoint
 app.get("/time", (req, res) => {
   try {
-    const chennaiTime = moment().tz("Asia/Kolkata").format(); // ISO string
+    const chennaiTime = moment().tz("Asia/Kolkata").format();
     res.json({ timezone: "Asia/Kolkata", datetime: chennaiTime });
   } catch (err) {
     console.error(err);
@@ -55,7 +54,6 @@ app.get("/time", (req, res) => {
 app.get("/telegram-latest-update", async (req, res) => {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
-
     const response = await fetch(url);
     const data = await response.json();
 
@@ -65,13 +63,11 @@ app.get("/telegram-latest-update", async (req, res) => {
 
     const updates = data.result;
     if (updates.length === 0) {
-      return res.json({ text: "" }); // No updates yet
+      return res.json({ text: "" });
     }
 
-    // Get the latest update
     const latestUpdate = updates[updates.length - 1];
     const text = latestUpdate.message?.text || "";
-
     res.json({ text });
   } catch (err) {
     console.error(err);
