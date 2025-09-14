@@ -8,6 +8,8 @@ app.use(express.json()); // ✅ JSON body parser
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
+let lastUpdateId = 0; 
+
 // ✅ Ping route
 app.get("/ping", (req, res) => {
   res.send("pong");
@@ -53,20 +55,24 @@ app.get("/time", (req, res) => {
 // ✅ Latest Telegram update
 app.get("/telegram-latest-update", async (req, res) => {
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`;
+
     const response = await fetch(url);
     const data = await response.json();
 
     if (!data.ok) {
-      return res.status(500).json({ error: "Failed to fetch updates from Telegram" });
+      return res.status(500).json({ error: "Failed to fetch updates" });
     }
 
     const updates = data.result;
     if (updates.length === 0) {
-      return res.json({ text: "" });
+      return res.json({ text: "" }); // No new updates
     }
 
+    // ✅ Get the latest update
     const latestUpdate = updates[updates.length - 1];
+    lastUpdateId = latestUpdate.update_id; // ✅ Mark as processed
+
     const text = latestUpdate.message?.text || "";
     res.json({ text });
   } catch (err) {
