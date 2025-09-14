@@ -10,5 +10,6 @@
   "dependencies": {
     "express": "^4.19.2",
     "node-fetch": "^3.3.2"
+    "moment-timezone": "^0.5.43"
   }
 }
