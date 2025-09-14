@@ -51,5 +51,34 @@ app.get("/time", (req, res) => {
   }
 });
 
+// ✅ Latest Telegram update
+app.get("/telegram-latest-update", async (req, res) => {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data.ok) {
+      return res.status(500).json({ error: "Failed to fetch updates from Telegram" });
+    }
+
+    const updates = data.result;
+    if (updates.length === 0) {
+      return res.json({ text: "" }); // No updates yet
+    }
+
+    // Get the latest update
+    const latestUpdate = updates[updates.length - 1];
+    const text = latestUpdate.message?.text || "";
+
+    res.json({ text });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
