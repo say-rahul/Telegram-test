@@ -33,5 +33,10 @@ app.post("/send", async (req, res) => {
   }
 });
 
+app.get("/time", (req, res) => {
+  const chennaiTime = moment().tz("Asia/Kolkata").format(); // ISO string
+  res.json({ timezone: "Asia/Kolkata", datetime: chennaiTime });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
