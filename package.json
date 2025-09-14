@@ -1,7 +1,7 @@
 {
   "name": "telegram-proxy",
   "version": "1.0.0",
-  "description": "Simple Render proxy to send Telegram messages from IoT devices",
+  "description": "Telegram proxy + Chennai time server",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
     "moment-timezone": "^0.5.43"
   }
 }
